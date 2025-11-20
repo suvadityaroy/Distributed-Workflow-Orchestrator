@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"  # Optional: expose for debugging
+    volumes:
+      - redis-data:/data  # Persist task queue state between restarts
+
+  orchestrator:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    volumes:
+      - ./:/app  # TODO: extend with production-ready read-only mount
+
+volumes:
+  redis-data:
