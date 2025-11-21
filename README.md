@@ -22,9 +22,10 @@ Distributed Workflow Orchestrator is a FastAPI + Redis reference implementation 
 ```
 
 ## Tech Stack
-- `FastAPI` + `uvicorn` for the orchestration API
+- `FastAPI` + `uvicorn` for the orchestration API with interactive dashboard UI
 - `pydantic` DAG + payload models with strict validation
 - Redis-backed persistence with in-memory fallback for tests
+- File upload support with `python-multipart` and `PyYAML` for JSON/YAML parsing
 - Modular scheduler/worker/executor components
 - `pytest` + `httpx` for test coverage; GitHub Actions CI + Docker packaging
 
@@ -44,12 +45,31 @@ pip install -r requirements.txt
 pytest
 ```
 
+## Features
+- 🎯 **Interactive Dashboard** - Visual UI at `/` with real-time metrics, DAG list, and run monitoring
+- 📤 **Drag & Drop Upload** - Upload DAG files (JSON/YAML) directly in the browser
+- 📊 **Live Metrics** - System statistics, task status breakdown, queue depth
+- ▶️ **One-Click Execution** - Trigger workflow runs from the dashboard
+- ✖️ **Run Cancellation** - Cancel running workflows on demand
+- 🔄 **Auto-Refresh** - Dashboard updates every 5 seconds automatically
+
 ## API Examples
-### Register a DAG
+### Register a DAG (JSON)
 ```bash
 curl -X POST http://localhost:8000/dags \
      -H "Content-Type: application/json" \
      -d '{"id":"sample","name":"Demo","tasks":{"task_a":{"id":"task_a","name":"Task A","command":"echo A"}}}'
+```
+
+### Upload a DAG File (JSON/YAML)
+```bash
+curl -X POST http://localhost:8000/dags/upload \
+     -F "file=@examples/sample_upload.yaml"
+```
+
+### List All DAGs
+```bash
+curl http://localhost:8000/dags
 ```
 
 ### Trigger a Run
@@ -60,6 +80,16 @@ curl -X POST http://localhost:8000/dags/sample/run
 ### Inspect Run Status
 ```bash
 curl http://localhost:8000/runs/<run_id>
+```
+
+### Get System Metrics
+```bash
+curl http://localhost:8000/metrics
+```
+
+### Cancel a Run
+```bash
+curl -X POST http://localhost:8000/runs/<run_id>/cancel
 ```
 
 ## Demo
