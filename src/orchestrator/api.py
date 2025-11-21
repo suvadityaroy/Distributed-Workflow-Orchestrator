@@ -8,8 +8,10 @@ from collections import defaultdict
 from contextlib import asynccontextmanager
 from typing import Any, AsyncIterator, Dict, List
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, UploadFile, File
 from fastapi.responses import HTMLResponse
+import json
+import yaml
 
 from .dag import DAG
 from .persistence import PersistenceProtocol, get_persistence_from_env
@@ -45,6 +47,45 @@ def register_dag(dag: DAG, persistence: PersistenceProtocol = Depends(get_persis
 	dag.validate()
 	persistence.save_dag(dag.id, dag.model_dump_json())
 	return {"dag_id": dag.id}
+
+
+@app.post("/dags/upload")
+async def upload_dag(
+	file: UploadFile = File(...),
+	persistence: PersistenceProtocol = Depends(get_persistence)
+) -> dict:
+	"""Upload and register a DAG from JSON or YAML file."""
+	
+	content = await file.read()
+	filename = file.filename.lower()
+	
+	try:
+		# Parse based on file extension
+		if filename.endswith('.json'):
+			data = json.loads(content.decode('utf-8'))
+		elif filename.endswith(('.yaml', '.yml')):
+			data = yaml.safe_load(content.decode('utf-8'))
+		else:
+			raise HTTPException(
+				status_code=400,
+				detail="Unsupported file format. Please upload JSON or YAML files."
+			)
+		
+		# Create DAG from parsed data
+		dag = DAG(**data)
+		dag.validate()
+		persistence.save_dag(dag.id, dag.model_dump_json())
+		
+		return {"dag_id": dag.id, "filename": file.filename, "status": "uploaded"}
+	
+	except json.JSONDecodeError as e:
+		raise HTTPException(status_code=400, detail=f"Invalid JSON: {str(e)}")
+	except yaml.YAMLError as e:
+		raise HTTPException(status_code=400, detail=f"Invalid YAML: {str(e)}")
+	except ValueError as e:
+		raise HTTPException(status_code=400, detail=f"Invalid DAG: {str(e)}")
+	except Exception as e:
+		raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 
 @app.post("/dags/{dag_id}/run")
@@ -282,6 +323,35 @@ def dashboard() -> str:
 		}
 		.empty-state { color: #999; font-style: italic; padding: 20px; text-align: center; }
 		.timestamp { color: #999; font-size: 0.85em; margin-top: 10px; }
+		.upload-zone {
+			border: 3px dashed #667eea;
+			border-radius: 12px;
+			padding: 40px;
+			text-align: center;
+			cursor: pointer;
+			transition: all 0.3s;
+			background: rgba(255,255,255,0.05);
+		}
+		.upload-zone:hover, .upload-zone.dragover {
+			border-color: #5568d3;
+			background: rgba(102,126,234,0.1);
+			transform: scale(1.02);
+		}
+		.upload-zone.dragover {
+			background: rgba(102,126,234,0.2);
+		}
+		.upload-icon { font-size: 3em; margin-bottom: 15px; }
+		.upload-text { color: #333; font-size: 1.1em; margin-bottom: 10px; }
+		.upload-hint { color: #666; font-size: 0.9em; }
+		.file-input { display: none; }
+		.upload-status {
+			margin-top: 15px;
+			padding: 10px;
+			border-radius: 6px;
+			display: none;
+		}
+		.upload-status.success { background: #d4edda; color: #155724; display: block; }
+		.upload-status.error { background: #f8d7da; color: #721c24; display: block; }
 	</style>
 </head>
 <body>
@@ -289,6 +359,17 @@ def dashboard() -> str:
 		<div class="header">
 			<h1>🚀 Workflow Orchestrator</h1>
 			<p class="subtitle">Monitor DAGs, runs, and task execution in real-time</p>
+		</div>
+		
+		<div class="card" style="margin-bottom: 20px;">
+			<h3>📤 Upload DAG File</h3>
+			<div class="upload-zone" id="uploadZone">
+				<div class="upload-icon">📁</div>
+				<div class="upload-text">Drop your DAG file here or click to browse</div>
+				<div class="upload-hint">Supports JSON and YAML files</div>
+				<input type="file" id="fileInput" class="file-input" accept=".json,.yaml,.yml">
+			</div>
+			<div class="upload-status" id="uploadStatus"></div>
 		</div>
 		
 		<div class="grid">
@@ -406,6 +487,73 @@ def dashboard() -> str:
 			loadMetrics();
 			loadDAGs();
 			loadRuns();
+		}
+		
+		// File upload functionality
+		const uploadZone = document.getElementById('uploadZone');
+		const fileInput = document.getElementById('fileInput');
+		const uploadStatus = document.getElementById('uploadStatus');
+		
+		// Click to browse
+		uploadZone.addEventListener('click', () => fileInput.click());
+		
+		// File input change
+		fileInput.addEventListener('change', (e) => {
+			if (e.target.files.length > 0) {
+				uploadFile(e.target.files[0]);
+			}
+		});
+		
+		// Drag and drop
+		uploadZone.addEventListener('dragover', (e) => {
+			e.preventDefault();
+			uploadZone.classList.add('dragover');
+		});
+		
+		uploadZone.addEventListener('dragleave', () => {
+			uploadZone.classList.remove('dragover');
+		});
+		
+		uploadZone.addEventListener('drop', (e) => {
+			e.preventDefault();
+			uploadZone.classList.remove('dragover');
+			if (e.dataTransfer.files.length > 0) {
+				uploadFile(e.dataTransfer.files[0]);
+			}
+		});
+		
+		async function uploadFile(file) {
+			const formData = new FormData();
+			formData.append('file', file);
+			
+			uploadStatus.className = 'upload-status';
+			uploadStatus.textContent = 'Uploading...';
+			uploadStatus.style.display = 'block';
+			
+			try {
+				const response = await fetch('/dags/upload', {
+					method: 'POST',
+					body: formData
+				});
+				
+				const result = await response.json();
+				
+				if (response.ok) {
+					uploadStatus.className = 'upload-status success';
+					uploadStatus.textContent = `✓ DAG "${result.dag_id}" uploaded successfully from ${result.filename}`;
+					fileInput.value = '';
+					setTimeout(() => {
+						loadAll();
+						uploadStatus.style.display = 'none';
+					}, 3000);
+				} else {
+					uploadStatus.className = 'upload-status error';
+					uploadStatus.textContent = `✗ Upload failed: ${result.detail}`;
+				}
+			} catch (error) {
+				uploadStatus.className = 'upload-status error';
+				uploadStatus.textContent = `✗ Upload failed: ${error.message}`;
+			}
 		}
 		
 		// Load on page load
