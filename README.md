@@ -143,9 +143,3 @@ tasks:
 - Workers enforce structured retries with exponential backoff; metadata captured for auditability.
 - Executors support shell and Python callables (sync or async) with strict timeout handling.
 - Future: add distributed locking for multi-worker deployments, richer run metadata endpoints, and pluggable authentication/authorization on the API.
-
-## Resume Bullet
-Built a fully typed FastAPI + Redis workflow orchestrator (scheduler, workers, executor, CI, Docker) with comprehensive tests and documentation.
-
-## Commit History Guide
-Recommended step-by-step commit narrative lives in `commit_by_commit.txt`; follow it to recreate the implementation story when presenting the project.
