@@ -1,0 +1,25 @@
+id: data_pipeline
+name: Data Processing Pipeline
+tasks:
+  extract:
+    id: extract
+    name: Extract Data
+    command: python extract_data.py
+    timeout_seconds: 300
+  
+  transform:
+    id: transform
+    name: Transform Data
+    command: python transform_data.py
+    dependencies:
+      - extract
+    retries: 2
+    retry_delay_seconds: 10
+  
+  load:
+    id: load
+    name: Load to Database
+    command: python load_data.py
+    dependencies:
+      - transform
+    timeout_seconds: 600

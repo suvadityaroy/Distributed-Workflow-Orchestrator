@@ -1,0 +1,27 @@
+{
+  "id": "ml_training",
+  "name": "Machine Learning Training Pipeline",
+  "tasks": {
+    "prepare_data": {
+      "id": "prepare_data",
+      "name": "Prepare Training Data",
+      "command": "python prepare_data.py",
+      "timeout_seconds": 300
+    },
+    "train_model": {
+      "id": "train_model",
+      "name": "Train ML Model",
+      "command": "python train_model.py",
+      "dependencies": ["prepare_data"],
+      "retries": 3,
+      "retry_delay_seconds": 30,
+      "timeout_seconds": 3600
+    },
+    "evaluate": {
+      "id": "evaluate",
+      "name": "Evaluate Model",
+      "command": "python evaluate_model.py",
+      "dependencies": ["train_model"]
+    }
+  }
+}

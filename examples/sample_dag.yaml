@@ -1,0 +1,39 @@
+id: sample
+name: Sample Workflow
+tasks:
+	task_a:
+		id: task_a
+		name: Echo A
+		command: echo "A"
+		retries: 1
+		retry_delay_seconds: 2
+		timeout_seconds: 30
+		metadata:
+			note: "Root task"
+	task_b:
+		id: task_b
+		name: Callable B
+		callable: examples.sample_module:do_b
+		dependencies:
+			- task_a
+		retries: 2
+		retry_delay_seconds: 5
+		metadata:
+			message: "from sample dag"
+	task_c:
+		id: task_c
+		name: Echo C
+		command: sleep 1 && echo "C"
+		dependencies:
+			- task_a
+		timeout_seconds: 60
+	task_d:
+		id: task_d
+		name: Done
+		command: echo "done"
+		dependencies:
+			- task_b
+			- task_c
+		retries: 0
+		metadata:
+			note: "Fan-in"

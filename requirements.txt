@@ -1,0 +1,14 @@
+# Core API framework (Python 3.11+ / 3.13+ compatible)
+fastapi==0.115.0  # Modern async web framework for orchestration API
+uvicorn[standard]==0.32.0  # ASGI server powering FastAPI app
+redis==5.0.8  # Queue and persistence backend client
+pydantic==2.9.0  # Data validation for DAG and API models (v2)
+pyyaml==6.0.2  # YAML parsing for DAG file uploads
+python-multipart==0.0.18  # File upload support for FastAPI
+
+# Testing + tooling
+pytest==8.3.0  # Test runner for unit tests
+pytest-asyncio==0.24.0  # Async test support (FastAPI + asyncio utilities)
+httpx==0.27.0  # HTTP client used by FastAPI TestClient
+python-dotenv==1.0.0  # Environment variable management (optional)
+requests==2.32.0  # Underlying HTTP utilities for testing/examples

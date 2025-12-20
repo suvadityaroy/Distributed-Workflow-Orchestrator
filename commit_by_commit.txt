@@ -1,0 +1,8 @@
+1. **Bootstrap scaffolding** – add README skeleton, requirements, pyproject, and repository layout placeholders.
+2. **Implement DAG core** – add `dag.py` with Task/DAG models plus focused unit tests.
+3. **Persistence foundations** – deliver in-memory + Redis persistence plus related tests/mocks.
+4. **Execution engine** – implement `executor.py` covering shell + callable execution with defensive handling.
+5. **Scheduling logic** – fill in `scheduler.py` and corresponding tests to validate enqueue behavior.
+6. **Worker loop + integration tests** – build retry-aware worker and any smoke/behavior tests touching executor/persistence.
+7. **FastAPI surface + tests** – wire API endpoints, dependency injection, and HTTP-level tests.
+8. **DevOps polish** – add Dockerfile, docker-compose, CI workflow, and finalize README/docs/examples.
