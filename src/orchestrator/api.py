@@ -240,163 +240,783 @@ def dashboard() -> str:
 	<title>Workflow Orchestrator Dashboard</title>
 	<style>
 		* { margin: 0; padding: 0; box-sizing: border-box; }
+		
+		@keyframes gradient-shift {
+			0% { background-position: 0% 50%; }
+			50% { background-position: 100% 50%; }
+			100% { background-position: 0% 50%; }
+		}
+		
+		@keyframes fadeInUp {
+			from {
+				opacity: 0;
+				transform: translateY(30px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+		
+		@keyframes slideInLeft {
+			from {
+				opacity: 0;
+				transform: translateX(-30px);
+			}
+			to {
+				opacity: 1;
+				transform: translateX(0);
+			}
+		}
+		
+		@keyframes pulse {
+			0%, 100% { transform: scale(1); }
+			50% { transform: scale(1.05); }
+		}
+		
+		@keyframes shimmer {
+			0% { background-position: -1000px 0; }
+			100% { background-position: 1000px 0; }
+		}
+		
+		@keyframes bounce-in {
+			0% { transform: scale(0.3); opacity: 0; }
+			50% { transform: scale(1.05); }
+			70% { transform: scale(0.9); }
+			100% { transform: scale(1); opacity: 1; }
+		}
+		
+		@keyframes rotate {
+			from { transform: rotate(0deg); }
+			to { transform: rotate(360deg); }
+		}
+		
 		body { 
 			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+			background-size: 400% 400%;
+			animation: gradient-shift 15s ease infinite;
 			min-height: 100vh;
 			padding: 20px;
+			overflow-x: hidden;
 		}
-		.container { max-width: 1400px; margin: 0 auto; }
+		.container { 
+			max-width: 1400px; 
+			margin: 0 auto;
+			animation: fadeInUp 0.6s ease-out;
+		}
+		
 		.header {
-			background: white;
-			border-radius: 12px;
-			padding: 30px;
-			margin-bottom: 20px;
-			box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+			background: rgba(255, 255, 255, 0.95);
+			backdrop-filter: blur(10px);
+			border-radius: 16px;
+			padding: 40px;
+			margin-bottom: 30px;
+			box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+			animation: slideInLeft 0.8s ease-out;
+			border: 1px solid rgba(255,255,255,0.3);
 		}
-		h1 { color: #667eea; font-size: 2.5em; margin-bottom: 10px; }
-		.subtitle { color: #666; font-size: 1.1em; }
-		.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 20px; }
+		h1 { 
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			font-size: 3em; 
+			margin-bottom: 12px;
+			font-weight: 800;
+			letter-spacing: -1px;
+		}
+		
+		.subtitle { 
+			color: #666; 
+			font-size: 1.2em;
+			font-weight: 300;
+		}
+		.grid { 
+			display: grid; 
+			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+			gap: 25px; 
+			margin-bottom: 20px; 
+		}
+		
 		.card {
-			background: white;
-			border-radius: 12px;
-			padding: 24px;
-			box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-			transition: transform 0.2s;
+			background: rgba(255, 255, 255, 0.95);
+			backdrop-filter: blur(10px);
+			border-radius: 16px;
+			padding: 28px;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			animation: bounce-in 0.6s ease-out;
+			animation-fill-mode: both;
+			border: 1px solid rgba(255,255,255,0.3);
+			position: relative;
+			overflow: hidden;
 		}
-		.card:hover { transform: translateY(-5px); box-shadow: 0 8px 12px rgba(0,0,0,0.15); }
-		.card h3 { color: #333; margin-bottom: 15px; font-size: 1.3em; }
-		.metric { font-size: 2.5em; font-weight: bold; color: #667eea; margin: 10px 0; }
+		
+		.card::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+			transition: left 0.5s;
+		}
+		
+		.card:hover::before {
+			left: 100%;
+		}
+		
+		.card:hover { 
+			transform: translateY(-8px) scale(1.02);
+			box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+		}
+		
+		.card:nth-child(1) { animation-delay: 0.1s; }
+		.card:nth-child(2) { animation-delay: 0.2s; }
+		.card:nth-child(3) { animation-delay: 0.3s; }
+		.card h3 { 
+			color: #333; 
+			margin-bottom: 20px; 
+			font-size: 1.4em;
+			font-weight: 700;
+			letter-spacing: -0.5px;
+		}
+		
+		.metric { 
+			font-size: 3em; 
+			font-weight: 800; 
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			margin: 15px 0;
+			animation: pulse 2s ease-in-out infinite;
+		}
 		.status-badge {
 			display: inline-block;
-			padding: 4px 12px;
-			border-radius: 20px;
+			padding: 6px 14px;
+			border-radius: 25px;
 			font-size: 0.85em;
-			font-weight: 600;
-			margin: 2px;
+			font-weight: 700;
+			margin: 3px;
+			transition: all 0.2s;
+			animation: fadeInUp 0.4s ease-out;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
 		}
-		.status-success { background: #d4edda; color: #155724; }
-		.status-running { background: #cce5ff; color: #004085; }
-		.status-failed { background: #f8d7da; color: #721c24; }
-		.status-queued { background: #fff3cd; color: #856404; }
-		.status-cancelled { background: #e2e3e5; color: #383d41; }
+		
+		.status-badge:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+		}
+		
+		.status-success { 
+			background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+			color: #155724; 
+		}
+		.status-running { 
+			background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+			color: #004085; 
+		}
+		.status-failed { 
+			background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+			color: #721c24; 
+		}
+		.status-queued { 
+			background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+			color: #856404; 
+		}
+		.status-cancelled { 
+			background: linear-gradient(135deg, #d7d2cc 0%, #304352 100%);
+			color: #fff; 
+		}
 		.run-item, .dag-item {
-			padding: 12px;
-			border-bottom: 1px solid #eee;
+			padding: 16px;
+			border-bottom: 1px solid rgba(0,0,0,0.05);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			transition: all 0.2s;
+			animation: slideInLeft 0.4s ease-out;
+		}
+		
+		.run-item:hover, .dag-item:hover {
+			background: rgba(102,126,234,0.05);
+			padding-left: 20px;
+		}
+		
+		.run-item:last-child, .dag-item:last-child { border-bottom: none; }
+		
+		.run-id { 
+			font-family: 'SF Mono', Monaco, monospace; 
+			font-size: 0.9em; 
+			color: #666;
+			background: rgba(0,0,0,0.05);
+			padding: 4px 8px;
+			border-radius: 4px;
+		}
+		.btn {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 8px;
+			cursor: pointer;
+			font-size: 0.9em;
+			font-weight: 600;
+			transition: all 0.3s;
+			box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		
+		.btn:hover { 
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(102,126,234,0.6);
+		}
+		
+		.btn:active {
+			transform: translateY(0);
+		}
+		
+		.btn-danger { 
+			background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+			box-shadow: 0 4px 15px rgba(220,53,69,0.4);
+		}
+		
+		.btn-danger:hover { 
+			box-shadow: 0 6px 20px rgba(220,53,69,0.6);
+		}
+		.refresh-btn {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			border: none;
+			color: white;
+			padding: 8px 20px;
+			border-radius: 20px;
+			cursor: pointer;
+			font-weight: 600;
+			box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			font-size: 0.85em;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		
+		.refresh-btn:hover {
+			transform: translateY(-2px) scale(1.05);
+			box-shadow: 0 6px 20px rgba(102,126,234,0.6);
+		}
+		
+		.refresh-btn:active {
+			transform: translateY(0) scale(1.02);
+		}
+		.empty-state { 
+			color: #999; 
+			font-style: italic; 
+			padding: 30px; 
+			text-align: center;
+			font-size: 1.1em;
+		}
+		
+		.timestamp { 
+			color: #999; 
+			font-size: 0.85em; 
+			margin-top: 12px;
+			font-weight: 500;
+		}
+		.upload-zone {
+			border: 3px dashed rgba(102,126,234,0.5);
+			border-radius: 16px;
+			padding: 50px;
+			text-align: center;
+			cursor: pointer;
+			transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+			background: linear-gradient(135deg, rgba(102,126,234,0.05) 0%, rgba(118,75,162,0.05) 100%);
+			position: relative;
+			overflow: hidden;
+		}
+		
+		.upload-zone::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+			transition: left 0.6s;
+		}
+		
+		.upload-zone:hover::before {
+			left: 100%;
+		}
+		
+		.upload-zone:hover {
+			border-color: #667eea;
+			background: linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.15) 100%);
+			transform: scale(1.02);
+			box-shadow: 0 10px 30px rgba(102,126,234,0.2);
+		}
+		
+		.upload-zone.dragover {
+			border-color: #764ba2;
+			background: linear-gradient(135deg, rgba(102,126,234,0.25) 0%, rgba(118,75,162,0.25) 100%);
+			transform: scale(1.05);
+			box-shadow: 0 15px 40px rgba(102,126,234,0.3);
+		}
+		.upload-icon { 
+			font-size: 4em; 
+			margin-bottom: 20px;
+			animation: bounce-in 0.8s ease-out;
+		}
+		
+		.upload-text { 
+			color: #333; 
+			font-size: 1.2em; 
+			margin-bottom: 12px;
+			font-weight: 600;
+		}
+		
+		.upload-hint { 
+			color: #666; 
+			font-size: 0.95em;
+			font-weight: 400;
+		}
+		
+		.file-input { display: none; }
+		
+		.upload-status {
+			margin-top: 20px;
+			padding: 12px 20px;
+			border-radius: 8px;
+			display: none;
+			font-weight: 600;
+			animation: slideInLeft 0.4s ease-out;
+		}
+		
+		.upload-status.success { 
+			background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+			color: #155724; 
+			display: block;
+		}
+		
+		.upload-status.error { 
+			background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+			color: #721c24; 
+			display: block;
+		}
+		
+		/* Loading animation */
+		.loading {
+			display: inline-block;
+			width: 20px;
+			height: 20px;
+			border: 3px solid rgba(102,126,234,0.3);
+			border-radius: 50%;
+			border-top-color: #667eea;
+			animation: rotate 1s linear infinite;
+		}
+		
+		/* Professional Navigation */
+		.navbar {
+			position: sticky;
+			top: 0;
+			z-index: 999;
+			background: rgba(255, 255, 255, 0.98);
+			backdrop-filter: blur(20px);
+			padding: 20px 0;
+			margin-bottom: 30px;
+			box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+			animation: slideInLeft 0.6s ease-out;
+		}
+		
+		.navbar-content {
+			max-width: 1400px;
+			margin: 0 auto;
+			padding: 0 20px;
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
 		}
-		.run-item:last-child, .dag-item:last-child { border-bottom: none; }
-		.run-id { font-family: monospace; font-size: 0.9em; color: #666; }
-		.btn {
-			background: #667eea;
-			color: white;
-			border: none;
-			padding: 8px 16px;
-			border-radius: 6px;
-			cursor: pointer;
-			font-size: 0.9em;
-			transition: background 0.2s;
+		
+		.logo {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			font-size: 1.5em;
+			font-weight: 800;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
 		}
-		.btn:hover { background: #5568d3; }
-		.btn-danger { background: #dc3545; }
-		.btn-danger:hover { background: #c82333; }
-		.refresh-btn {
-			position: fixed;
-			bottom: 30px;
-			right: 30px;
-			background: white;
-			border: 2px solid #667eea;
+		
+		.nav-links {
+			display: flex;
+			gap: 30px;
+			align-items: center;
+		}
+		
+		.nav-link {
+			color: #666;
+			text-decoration: none;
+			font-weight: 500;
+			transition: all 0.2s;
+			position: relative;
+		}
+		
+		.nav-link:hover {
 			color: #667eea;
-			padding: 12px 24px;
-			border-radius: 50px;
-			cursor: pointer;
+		}
+		
+		.nav-link::after {
+			content: '';
+			position: absolute;
+			bottom: -5px;
+			left: 0;
+			width: 0;
+			height: 2px;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			transition: width 0.3s;
+		}
+		
+		.nav-link:hover::after {
+			width: 100%;
+		}
+		
+		/* Floating Particles */
+		.particle {
+			position: fixed;
+			pointer-events: none;
+			z-index: 1;
+			opacity: 0.6;
+		}
+		
+		@keyframes float {
+			0%, 100% {
+				transform: translateY(0) translateX(0) rotate(0deg);
+				opacity: 0;
+			}
+			10% {
+				opacity: 0.6;
+			}
+			90% {
+				opacity: 0.3;
+			}
+			100% {
+				transform: translateY(-100vh) translateX(50px) rotate(360deg);
+				opacity: 0;
+			}
+		}
+		
+		/* Glow Effects */
+		@keyframes glow {
+			0%, 100% {
+				box-shadow: 0 0 20px rgba(102,126,234,0.3), 0 0 40px rgba(102,126,234,0.2), 0 0 60px rgba(102,126,234,0.1);
+			}
+			50% {
+				box-shadow: 0 0 30px rgba(102,126,234,0.5), 0 0 60px rgba(102,126,234,0.3), 0 0 90px rgba(102,126,234,0.2);
+			}
+		}
+		
+		.card.glow-effect {
+			animation: bounce-in 0.6s ease-out, glow 3s ease-in-out infinite;
+		}
+		
+		/* Ripple Effect */
+		@keyframes ripple {
+			0% {
+				transform: scale(0);
+				opacity: 1;
+			}
+			100% {
+				transform: scale(4);
+				opacity: 0;
+			}
+		}
+		
+		.ripple {
+			position: absolute;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.6);
+			animation: ripple 0.6s ease-out;
+			pointer-events: none;
+		}
+		
+		/* Stats Cards Enhancement */
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 20px;
+			margin-bottom: 30px;
+		}
+		
+		.stat-card {
+			background: rgba(255, 255, 255, 0.95);
+			backdrop-filter: blur(10px);
+			border-radius: 16px;
+			padding: 24px;
+			text-align: center;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+			transition: all 0.3s;
+			animation: bounce-in 0.6s ease-out;
+			animation-fill-mode: both;
+			border: 1px solid rgba(255,255,255,0.3);
+		}
+		
+		.stat-card:hover {
+			transform: translateY(-5px) scale(1.03);
+			box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+		}
+		
+		.stat-icon {
+			font-size: 2.5em;
+			margin-bottom: 10px;
+		}
+		
+		.stat-value {
+			font-size: 2.5em;
+			font-weight: 800;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			margin: 10px 0;
+		}
+		
+		.stat-label {
+			color: #666;
+			font-size: 0.95em;
+			font-weight: 500;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+		}
+		
+		/* Footer */
+		.footer {
+			margin-top: 60px;
+			padding: 40px 0;
+			text-align: center;
+			background: rgba(255, 255, 255, 0.95);
+			backdrop-filter: blur(10px);
+			border-radius: 16px;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+			animation: fadeInUp 0.8s ease-out;
+		}
+		
+		.footer-content {
+			color: #666;
+			font-size: 0.9em;
+		}
+		
+		.footer-links {
+			display: flex;
+			justify-content: center;
+			gap: 30px;
+			margin-top: 20px;
+		}
+		
+		.footer-link {
+			color: #667eea;
+			text-decoration: none;
 			font-weight: 600;
-			box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 			transition: all 0.2s;
 		}
-		.refresh-btn:hover {
-			background: #667eea;
+		
+		.footer-link:hover {
+			color: #764ba2;
+			transform: translateY(-2px);
+		}
+		
+		/* Responsive Design */
+		@media (max-width: 768px) {
+			.navbar-content {
+				flex-direction: column;
+				gap: 15px;
+			}
+			
+			.nav-links {
+				flex-direction: column;
+				gap: 15px;
+			}
+			
+			h1 {
+				font-size: 2em;
+			}
+			
+			.grid {
+				grid-template-columns: 1fr;
+			}
+			
+			.stats-grid {
+				grid-template-columns: repeat(2, 1fr);
+			}
+			
+			.refresh-btn {
+				bottom: 20px;
+				right: 20px;
+				padding: 12px 24px;
+				font-size: 0.9em;
+			}
+		}
+		
+		/* Tooltip */
+		[data-tooltip] {
+			position: relative;
+			cursor: help;
+		}
+		
+		[data-tooltip]:hover::before {
+			content: attr(data-tooltip);
+			position: absolute;
+			bottom: 100%;
+			left: 50%;
+			transform: translateX(-50%);
+			padding: 8px 12px;
+			background: rgba(0,0,0,0.9);
 			color: white;
-			transform: scale(1.05);
-		}
-		.empty-state { color: #999; font-style: italic; padding: 20px; text-align: center; }
-		.timestamp { color: #999; font-size: 0.85em; margin-top: 10px; }
-		.upload-zone {
-			border: 3px dashed #667eea;
-			border-radius: 12px;
-			padding: 40px;
-			text-align: center;
-			cursor: pointer;
-			transition: all 0.3s;
-			background: rgba(255,255,255,0.05);
-		}
-		.upload-zone:hover, .upload-zone.dragover {
-			border-color: #5568d3;
-			background: rgba(102,126,234,0.1);
-			transform: scale(1.02);
-		}
-		.upload-zone.dragover {
-			background: rgba(102,126,234,0.2);
-		}
-		.upload-icon { font-size: 3em; margin-bottom: 15px; }
-		.upload-text { color: #333; font-size: 1.1em; margin-bottom: 10px; }
-		.upload-hint { color: #666; font-size: 0.9em; }
-		.file-input { display: none; }
-		.upload-status {
-			margin-top: 15px;
-			padding: 10px;
 			border-radius: 6px;
-			display: none;
+			font-size: 0.85em;
+			white-space: nowrap;
+			z-index: 1000;
+			animation: fadeInUp 0.2s ease-out;
 		}
-		.upload-status.success { background: #d4edda; color: #155724; display: block; }
-		.upload-status.error { background: #f8d7da; color: #721c24; display: block; }
+		
+		/* Section Headers */
+		.section-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+		}
+		
+		.section-title {
+			font-size: 1.5em;
+			font-weight: 700;
+			color: #333;
+		}
+		
+		.section-badge {
+			padding: 4px 12px;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			border-radius: 20px;
+			font-size: 0.75em;
+			font-weight: 700;
+		}
 	</style>
 </head>
 <body>
+	<!-- Navigation Bar -->
+	<nav class="navbar">
+		<div class="navbar-content">
+			<div class="logo">
+				<span>🚀</span>
+				<span>Workflow Orchestrator</span>
+			</div>
+			<div class="nav-links">
+				<a href="#metrics" class="nav-link">Metrics</a>
+				<a href="#dags" class="nav-link">DAGs</a>
+				<a href="#runs" class="nav-link">Runs</a>
+			</div>
+		</div>
+	</nav>
+	
 	<div class="container">
+		<!-- Hero Header -->
 		<div class="header">
-			<h1>🚀 Workflow Orchestrator</h1>
-			<p class="subtitle">Monitor DAGs, runs, and task execution in real-time</p>
+			<h1>🚀 Workflow Orchestrator Dashboard</h1>
+			<p class="subtitle">Monitor DAGs, runs, and task execution in real-time with powerful analytics</p>
 		</div>
 		
-		<div class="card" style="margin-bottom: 20px;">
-			<h3>📤 Upload DAG File</h3>
+		<!-- Quick Stats -->
+		<div class="stats-grid" id="quickStats">
+			<div class="stat-card" data-tooltip="Total number of registered DAGs">
+				<div class="stat-icon">📁</div>
+				<div class="stat-value" id="statDags">0</div>
+				<div class="stat-label">DAGs</div>
+			</div>
+			<div class="stat-card" data-tooltip="Total workflow runs">
+				<div class="stat-icon">▶️</div>
+				<div class="stat-value" id="statRuns">0</div>
+				<div class="stat-label">Runs</div>
+			</div>
+			<div class="stat-card" data-tooltip="Tasks currently in queue">
+				<div class="stat-icon">⏳</div>
+				<div class="stat-value" id="statQueue">0</div>
+				<div class="stat-label">Queued</div>
+			</div>
+			<div class="stat-card" data-tooltip="Successfully completed tasks">
+				<div class="stat-icon">✅</div>
+				<div class="stat-value" id="statSuccess">0</div>
+				<div class="stat-label">Success</div>
+			</div>
+		</div>
+		
+		<!-- Upload Section -->
+		<div id="dags" class="card" style="margin-bottom: 30px;">
+			<div class="section-header">
+				<h3>📤 Upload DAG File</h3>
+				<span class="section-badge">JSON • YAML</span>
+			</div>
 			<div class="upload-zone" id="uploadZone">
 				<div class="upload-icon">📁</div>
 				<div class="upload-text">Drop your DAG file here or click to browse</div>
-				<div class="upload-hint">Supports JSON and YAML files</div>
+				<div class="upload-hint">Supports JSON and YAML files • Max 10MB</div>
 				<input type="file" id="fileInput" class="file-input" accept=".json,.yaml,.yml">
 			</div>
 			<div class="upload-status" id="uploadStatus"></div>
 		</div>
 		
+		<!-- Main Content Grid -->
 		<div class="grid">
-			<div class="card">
-				<h3>📊 Metrics</h3>
+			<div id="metrics" class="card">
+				<div class="section-header">
+					<h3>📊 System Metrics</h3>
+				</div>
 				<div id="metrics-content">Loading...</div>
 			</div>
 			
 			<div class="card">
-				<h3>📁 DAGs</h3>
+				<div class="section-header">
+					<h3>📁 Registered DAGs</h3>
+					<span class="section-badge" id="dagsCount">0</span>
+				</div>
 				<div id="dags-content">Loading...</div>
 			</div>
 			
-			<div class="card">
-				<h3>▶️ Recent Runs</h3>
+			<div id="runs" class="card">
+				<div class="section-header">
+					<h3>▶️ Recent Runs</h3>
+					<div style="display: flex; gap: 10px; align-items: center;">
+						<span class="section-badge" id="runsCount">0</span>
+						<button class="refresh-btn" onclick="loadAll()" data-tooltip="Refresh all data">🔄 Refresh</button>
+					</div>
+				</div>
 				<div id="runs-content">Loading...</div>
 			</div>
 		</div>
-		
-		<button class="refresh-btn" onclick="loadAll()">🔄 Refresh</button>
 	</div>
 	
 	<script>
+		// Update quick stats
+		function updateQuickStats(data) {
+			document.getElementById('statDags').textContent = data.dags_registered || 0;
+			document.getElementById('statRuns').textContent = data.runs_total || 0;
+			document.getElementById('statQueue').textContent = data.queue_depth || 0;
+			document.getElementById('statSuccess').textContent = data.tasks_by_status?.success || 0;
+		}
+		
 		async function loadMetrics() {
 			try {
 				const res = await fetch('/metrics');
 				const data = await res.json();
+				
+				// Update quick stats
+				updateQuickStats(data);
+				
 				const statusHtml = Object.entries(data.tasks_by_status || {})
 					.map(([status, count]) => `<span class="status-badge status-${status}">${status}: ${count}</span>`)
 					.join('');
@@ -406,7 +1026,7 @@ def dashboard() -> str:
 					<div class="metric" style="font-size: 1.8em; margin-top: 15px;">${data.runs_total}</div>
 					<div>Total Runs</div>
 					<div style="margin-top: 15px;">${statusHtml || '<span class="empty-state">No tasks yet</span>'}</div>
-					<div class="timestamp">Queue: ${data.queue_depth} tasks</div>
+					<div class="timestamp">Queue: ${data.queue_depth} tasks • Last updated: ${new Date().toLocaleTimeString()}</div>
 				`;
 			} catch (e) {
 				document.getElementById('metrics-content').innerHTML = '<div class="empty-state">Failed to load</div>';
@@ -417,13 +1037,19 @@ def dashboard() -> str:
 			try {
 				const res = await fetch('/dags');
 				const data = await res.json();
+				document.getElementById('dagsCount').textContent = data.dags.length;
+				
 				if (data.dags.length === 0) {
-					document.getElementById('dags-content').innerHTML = '<div class="empty-state">No DAGs registered</div>';
+					document.getElementById('dags-content').innerHTML = '<div class="empty-state">No DAGs registered yet. Upload a DAG file to get started.</div>';
 					return;
 				}
-				const html = data.dags.map(id => `
-					<div class="dag-item">
-						<strong>${id}</strong>
+				const html = data.dags.map((id, index) => `
+					<div class="dag-item" style="animation-delay: ${index * 0.05}s;">
+						<div>
+							<strong>${id}</strong>
+							<br>
+							<span style="font-size: 0.85em; color: #999;">Ready to execute</span>
+						</div>
 						<button class="btn" onclick="triggerRun('${id}')">▶️ Run</button>
 					</div>
 				`).join('');
@@ -437,20 +1063,22 @@ def dashboard() -> str:
 			try {
 				const res = await fetch('/runs?limit=10');
 				const data = await res.json();
+				document.getElementById('runsCount').textContent = data.count || 0;
+				
 				if (data.runs.length === 0) {
-					document.getElementById('runs-content').innerHTML = '<div class="empty-state">No runs yet</div>';
+					document.getElementById('runs-content').innerHTML = '<div class="empty-state">No runs yet. Trigger a DAG to see run history.</div>';
 					return;
 				}
-				const html = data.runs.map(run => `
-					<div class="run-item">
+				const html = data.runs.map((run, index) => `
+					<div class="run-item" style="animation-delay: ${index * 0.05}s;">
 						<div>
-							<strong>${run.dag_id || 'Unknown'}</strong><br>
+							<strong>${run.dag_id || 'Unknown DAG'}</strong><br>
 							<span class="run-id">${run.run_id}</span>
 						</div>
-						<div>
+						<div style="display: flex; gap: 10px; align-items: center;">
 							<span class="status-badge status-${run.status || 'unknown'}">${run.status || 'unknown'}</span>
 							${run.status !== 'cancelled' && run.status !== 'completed' ? 
-								`<button class="btn btn-danger" onclick="cancelRun('${run.run_id}')">✖</button>` : ''}
+								`<button class="btn btn-danger" onclick="cancelRun('${run.run_id}')">✖ Cancel</button>` : ''}
 						</div>
 					</div>
 				`).join('');
@@ -461,25 +1089,51 @@ def dashboard() -> str:
 		}
 		
 		async function triggerRun(dagId) {
-			if (!confirm(`Trigger run for DAG: ${dagId}?`)) return;
+			if (!confirm(`🚀 Trigger workflow run for DAG: ${dagId}?`)) return;
 			try {
 				const res = await fetch(`/dags/${dagId}/run`, { method: 'POST' });
 				const data = await res.json();
-				alert(`Run triggered! ID: ${data.run_id}`);
+				
+				// Show success notification
+				const notification = document.createElement('div');
+				notification.className = 'upload-status success';
+				notification.textContent = `✓ Run triggered! ID: ${data.run_id}`;
+				notification.style.position = 'fixed';
+				notification.style.top = '20px';
+				notification.style.right = '20px';
+				notification.style.zIndex = '9999';
+				notification.style.display = 'block';
+				document.body.appendChild(notification);
+				
+				setTimeout(() => notification.remove(), 3000);
 				loadAll();
 			} catch (e) {
-				alert('Failed to trigger run: ' + e.message);
+				alert('❌ Failed to trigger run: ' + e.message);
 			}
 		}
 		
 		async function cancelRun(runId) {
-			if (!confirm(`Cancel run: ${runId}?`)) return;
+			if (!confirm(`⚠️ Cancel workflow run: ${runId}?`)) return;
 			try {
 				await fetch(`/runs/${runId}/cancel`, { method: 'POST' });
-				alert('Run cancelled');
+				
+				// Show success notification
+				const notification = document.createElement('div');
+				notification.className = 'upload-status';
+				notification.style.background = 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)';
+				notification.style.color = '#856404';
+				notification.textContent = '✓ Run cancelled successfully';
+				notification.style.position = 'fixed';
+				notification.style.top = '20px';
+				notification.style.right = '20px';
+				notification.style.zIndex = '9999';
+				notification.style.display = 'block';
+				document.body.appendChild(notification);
+				
+				setTimeout(() => notification.remove(), 3000);
 				loadAll();
 			} catch (e) {
-				alert('Failed to cancel run: ' + e.message);
+				alert('❌ Failed to cancel run: ' + e.message);
 			}
 		}
 		
@@ -527,8 +1181,10 @@ def dashboard() -> str:
 			formData.append('file', file);
 			
 			uploadStatus.className = 'upload-status';
-			uploadStatus.textContent = 'Uploading...';
+			uploadStatus.textContent = '⏳ Uploading and validating...';
 			uploadStatus.style.display = 'block';
+			uploadStatus.style.background = 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)';
+			uploadStatus.style.color = '#004085';
 			
 			try {
 				const response = await fetch('/dags/upload', {
@@ -540,7 +1196,7 @@ def dashboard() -> str:
 				
 				if (response.ok) {
 					uploadStatus.className = 'upload-status success';
-					uploadStatus.textContent = `✓ DAG "${result.dag_id}" uploaded successfully from ${result.filename}`;
+					uploadStatus.textContent = `✓ Success! DAG "${result.dag_id}" uploaded from ${result.filename}`;
 					fileInput.value = '';
 					setTimeout(() => {
 						loadAll();
@@ -548,11 +1204,11 @@ def dashboard() -> str:
 					}, 3000);
 				} else {
 					uploadStatus.className = 'upload-status error';
-					uploadStatus.textContent = `✗ Upload failed: ${result.detail}`;
+					uploadStatus.textContent = `✗ Upload failed: ${result.detail || 'Unknown error'}`;
 				}
 			} catch (error) {
 				uploadStatus.className = 'upload-status error';
-				uploadStatus.textContent = `✗ Upload failed: ${error.message}`;
+				uploadStatus.textContent = `✗ Network error: ${error.message}`;
 			}
 		}
 		
@@ -561,6 +1217,60 @@ def dashboard() -> str:
 		
 		// Auto-refresh every 5 seconds
 		setInterval(loadAll, 5000);
+		
+		// Smooth scroll for anchor links
+		document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+			anchor.addEventListener('click', function (e) {
+				e.preventDefault();
+				const target = document.querySelector(this.getAttribute('href'));
+				if (target) {
+					target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				}
+			});
+		});
+		
+		// Create floating particles
+		function createParticle() {
+			const particle = document.createElement('div');
+			particle.className = 'particle';
+			particle.textContent = ['✨', '⭐', '💫', '🌟', '✦'][Math.floor(Math.random() * 5)];
+			particle.style.left = Math.random() * 100 + '%';
+			particle.style.fontSize = (Math.random() * 20 + 10) + 'px';
+			particle.style.animation = `float ${Math.random() * 10 + 15}s linear`;
+			document.body.appendChild(particle);
+			
+			setTimeout(() => particle.remove(), 25000);
+		}
+		
+		// Generate particles periodically
+		setInterval(createParticle, 3000);
+		for (let i = 0; i < 5; i++) {
+			setTimeout(createParticle, i * 600);
+		}
+		
+		// Add ripple effect on button clicks
+		document.addEventListener('click', function(e) {
+			if (e.target.classList.contains('btn') || e.target.classList.contains('refresh-btn')) {
+				const ripple = document.createElement('span');
+				ripple.className = 'ripple';
+				ripple.style.width = ripple.style.height = '10px';
+				ripple.style.left = e.offsetX + 'px';
+				ripple.style.top = e.offsetY + 'px';
+				e.target.appendChild(ripple);
+				setTimeout(() => ripple.remove(), 600);
+			}
+		});
+		
+		// Add glow effect to cards periodically
+		setInterval(() => {
+			const cards = document.querySelectorAll('.card');
+			cards.forEach((card, index) => {
+				setTimeout(() => {
+					card.classList.add('glow-effect');
+					setTimeout(() => card.classList.remove('glow-effect'), 3000);
+				}, index * 500);
+			});
+		}, 15000);
 	</script>
 </body>
 </html>
